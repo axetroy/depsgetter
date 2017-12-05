@@ -1,0 +1,29 @@
+{
+  "name": "depsgetter",
+  "version": "0.0.1",
+  "description": "Get the deps file of a js file",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/axetroy/depsgetter.git"
+  },
+  "author": "Axetroy",
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/axetroy/depsgetter/issues"
+  },
+  "homepage": "https://github.com/axetroy/depsgetter#readme",
+  "devDependencies": {
+    "@types/babylon": "^6.16.2",
+    "@types/node": "^8.0.54"
+  },
+  "dependencies": {
+    "babylon": "^7.0.0-beta.34"
+  }
+}
