@@ -46,11 +46,80 @@ function Get(filepath) {
     filepath = path.join(process.cwd(), filepath);
   }
 
-  const deps = [];
-
   const raw = fs.readFileSync(filepath, 'utf8');
 
-  const ast = babylon.parse(raw, {
+  return GetFromRaw(raw);
+}
+
+function tokenParser(token) {
+  let deps = [];
+
+  // example: function(){ require('http') }
+  if (token.type === 'FunctionDeclaration') {
+    const nestBody = token.body.body;
+    for (let i = 0; i < nestBody.length; i++) {
+      const t = nestBody[i];
+      deps = deps.concat(tokenParser(t));
+    }
+  }
+
+  // example: require('http')
+  if (
+    token.type === 'ExpressionStatement' &&
+    token.expression.type === 'CallExpression' &&
+    token.expression.callee.name === 'require'
+  ) {
+    const dep = token.expression.arguments[0];
+
+    if (!dep) {
+      throw new Error(`require(${dep.value}) is not allow!`);
+    }
+
+    switch (dep.type) {
+      case 'StringLiteral':
+        deps.push(dep.value);
+        return deps;
+        break;
+      case 'BinaryExpression':
+        // not support dynamic loading
+        // example: require(path.join(process.cwd(), 'index.js'))
+        break;
+      default:
+        break;
+    }
+  }
+
+  // example: var http = require('http');
+  if (
+    token.type === 'VariableDeclaration' &&
+    (token.kind === 'const' || token.kind === 'var' || token.kind === 'let')
+  ) {
+    const declarations = token.declarations;
+
+    declarations
+      .filter(v => v.type === 'VariableDeclarator') // var xxx
+      .filter(v => v.init.type === 'CallExpression')
+      .filter(v => v.init.callee.name === 'require') // require('http');
+      .forEach(VariableDeclarator => {
+        const dep = VariableDeclarator.init.arguments[0];
+        if (!dep) {
+          throw new Error(`require(${dep.value}) is not allow!`);
+        }
+        deps.push(dep.value);
+      });
+    return deps;
+  }
+
+  // example: import { EventEmitter } from 'events';
+  if (token.type === 'ImportDeclaration') {
+    deps.push(token.source.value);
+  }
+  return deps;
+}
+
+function GetFromRaw(jsRawCode, filepath = '') {
+  let deps = [];
+  const ast = babylon.parse(jsRawCode, {
     sourceType: 'module',
     allowImportExportEverywhere: true,
     sourceFilename: path.basename(filepath),
@@ -58,47 +127,8 @@ function Get(filepath) {
   });
 
   ast.program.body.forEach(token => {
-    // example: require('http')
-    if (
-      token.type === 'ExpressionStatement' &&
-      token.expression.type === 'CallExpression' &&
-      token.expression.callee.name === 'require'
-    ) {
-      const dep = token.expression.arguments[0];
-
-      if (!dep) {
-        throw new Error(`require(${dep.value}) is not allow!`);
-      }
-
-      deps.push(dep.value);
-      return;
-    }
-
-    // example: var http = require('http');
-    if (
-      token.type === 'VariableDeclaration' &&
-      (token.kind === 'const' || token.kind === 'var' || token.kind === 'let')
-    ) {
-      const declarations = token.declarations;
-
-      declarations
-        .filter(v => v.type === 'VariableDeclarator') // var xxx
-        .filter(v => v.init.type === 'CallExpression')
-        .filter(v => v.init.callee.name === 'require') // require('http');
-        .forEach(VariableDeclarator => {
-          const dep = VariableDeclarator.init.arguments[0];
-          if (!dep) {
-            throw new Error(`require(${dep.value}) is not allow!`);
-          }
-          deps.push(dep.value);
-        });
-      return;
-    }
-
-    // import { EventEmitter } from 'events';
-    if (token.type === 'ImportDeclaration') {
-      deps.push(token.source.value);
-    }
+    const d = tokenParser(token);
+    deps = deps.concat(d);
   });
 
   return deps.map(v => {
@@ -115,3 +145,6 @@ function Get(filepath) {
 }
 
 module.exports = Get;
+module.exports.Get = Get;
+module.exports.default = Get;
+module.exports.GetFromRaw = GetFromRaw;
