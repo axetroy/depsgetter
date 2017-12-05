@@ -1,5 +1,7 @@
 ## Get the deps file of a js file
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/axetroy/depsgetter.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/axetroy/depsgetter.svg?branch=master)](https://travis-ci.org/axetroy/depsgetter)
 ![License](https://img.shields.io/badge/license-Apache-green.svg)
 
