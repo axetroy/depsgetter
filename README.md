@@ -2,6 +2,12 @@
 
 [![Build Status](https://travis-ci.org/axetroy/depsgetter.svg?branch=master)](https://travis-ci.org/axetroy/depsgetter)
 ![License](https://img.shields.io/badge/license-Apache-green.svg)
+[![Prettier](https://img.shields.io/badge/Code%20Style-Prettier-green.svg)](https://github.com/prettier/prettier)
+![Node](https://img.shields.io/badge/node-%3E=6.0-blue.svg?style=flat-square)
+[![npm version](https://badge.fury.io/js/%40axetroy%2Fstruct.svg)](https://badge.fury.io/js/%40axetroy%2Fstruct)
+![Size](https://github-size-badge.herokuapp.com/axetroy/depsgetter.svg)
+[![Coverage Status](https://coveralls.io/repos/github/axetroy/depsgetter/badge.svg?branch=master)](https://coveralls.io/github/axetroy/depsgetter?branch=master)
+[![Dependency](https://david-dm.org/axetroy/depsgetter.svg)](https://david-dm.org/axetroy/depsgetter)
 
 ## Usage
 
